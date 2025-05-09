@@ -1,0 +1,7 @@
+__pycache__/
+data/
+notes.md
+generated_metadata/*
+benchmark_results/*
+methods/
+results/
