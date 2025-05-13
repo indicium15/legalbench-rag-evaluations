@@ -38,6 +38,8 @@ MAX_TESTS_PER_BENCHMARK = 194
 # This speeds up ingestion processing, but
 # p-values cannot be calculated, because this settings drastically reduces the search space size.
 SORT_BY_DOCUMENT = True
+BENCHMARK_DIR = os.getenv("BENCHMARK_DIR", "./benchmarks")
+OUTPUT_DIR = os.getenv("OUTPUT_DIR", "./benchmark_results")
 
 
 # async def main() -> None:
@@ -47,14 +49,14 @@ def main() -> None:
     document_file_paths_set: set[str] = set()
     used_document_file_paths_set: set[str] = set()
     for benchmark_name, weight in benchmark_name_to_weight.items():
-        with open(f"/home/renyang/jadhav/LegalBench-RAG/combined/{benchmark_name}.json") as f:
+        with open(os.path.join(BENCHMARK_DIR, f"{benchmark_name}.json")) as f:
             benchmark = Benchmark.model_validate_json(f.read())
             tests = benchmark.tests
             # document_file_paths_set |= {
             #     snippet.file_path for test in tests for snippet in test.snippets
             # }
             document_file_paths_set |= {
-                os.path.join("/home/renyang/jadhav/LegalBench-RAG/corpus", os.path.basename(snippet.file_path))
+                os.path.join(CORPUS_DIR, os.path.basename(snippet.file_path))
                 for test in tests for snippet in test.snippets
             }
             # Cap queries for a given benchmark
@@ -101,7 +103,7 @@ def main() -> None:
 
     # Create a save location for this run
     run_name = dt.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-    benchmark_path = f"./benchmark_results/{run_name}"
+    benchmark_path = os.path.join(OUTPUT_DIR, run_name)
     os.makedirs(benchmark_path, exist_ok=True)
     csv_file = f"{benchmark_path}/results.csv"
 
